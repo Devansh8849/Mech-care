@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart | Mech Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header>
+            <h2>Your Cart</h2>
+        </header>
+
+        <section class="cart-page">
+            <div class="cart-intro">
+                <p>Your cart items and totals are shown below. Amounts update automatically as quantities change.</p>
+            </div>
+
+            <div class="cart-items"></div>
+            <div class="cart-empty">No items in cart yet. Add products from Home or Search.</div>
+
+            <div class="checkout-panel">
+                <div class="summary-box">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Items subtotal</span>
+                        <strong class="summary-subtotal">$0.00</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <strong class="summary-shipping">$0.00</strong>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total</span>
+                        <strong class="summary-total">$0.00</strong>
+                    </div>
+                </div>
+
+                <div class="payment-box">
+                    <h3>Payment Method</h3>
+                    <div class="radio-group">
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="card" checked>
+                            <span>Credit/Debit Card</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="paypal">
+                            <span>PayPal</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="upi">
+                            <span>UPI / Google Pay</span>
+                        </label>
+                    </div>
+                    <button class="checkout-btn">Proceed to Payment</button>
+                    <p class="payment-note">Use the payment option that suits you best. This site is a demo shop page with sample checkout experience.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="cart.html">🛒 Cart</a>
+        <a href="#">👤 Profile</a>
+    </nav>
+    <script>
+        const CART_KEY = 'mechcareCart';
+        const INVOICE_KEY = 'mechcareInvoice';
+        const cartItemsContainer = document.querySelector('.cart-items');
+        const cartEmptyMessage = document.querySelector('.cart-empty');
+        const subtotalEl = document.querySelector('.summary-subtotal');
+        const shippingEl = document.querySelector('.summary-shipping');
+        const totalEl = document.querySelector('.summary-total');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        }
+
+        function formatAmount(value) {
+            return `$${value.toFixed(2)}`;
+        }
+
+        function getPaymentMethod() {
+            const selected = document.querySelector('input[name="payment"]:checked');
+            if (!selected) return 'Credit/Debit Card';
+            return selected.value === 'card' ? 'Credit/Debit Card' : selected.value === 'paypal' ? 'PayPal' : 'UPI / Google Pay';
+        }
+
+        function generateInvoice(items, subtotal, shipping, total) {
+            return {
+                id: `MC${Date.now()}`,
+                date: new Date().toISOString(),
+                paymentMethod: getPaymentMethod(),
+                items,
+                subtotal: formatAmount(subtotal),
+                shipping: formatAmount(shipping),
+                total: formatAmount(total)
+            };
+        }
+
+        function handleCheckout() {
+            const cart = getCart();
+            if (cart.length === 0) return;
+            const subtotal = parseFloat(subtotalEl.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+            const shipping = parseFloat(shippingEl.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+            const total = parseFloat(totalEl.textContent.replace(/[^0-9.-]+/g, '')) || 0;
+            const invoice = generateInvoice(cart, subtotal, shipping, total);
+            localStorage.setItem(INVOICE_KEY, JSON.stringify(invoice));
+            saveCart([]);
+            window.location.href = 'invoice.html';
+        }
+
+        function updateSummary() {
+            const items = document.querySelectorAll('.cart-item');
+            let subtotal = 0;
+            items.forEach(item => {
+                const qtyInput = item.querySelector('.item-qty');
+                const price = parseFloat(item.dataset.price) || 0;
+                const qty = Math.max(1, Number(qtyInput.value) || 1);
+                subtotal += price * qty;
+                const lineTotalEl = item.querySelector('.item-total');
+                if (lineTotalEl) {
+                    lineTotalEl.textContent = formatAmount(price * qty);
+                }
+            });
+            const shipping = subtotal > 0 ? 12.00 : 0.00;
+            subtotalEl.textContent = formatAmount(subtotal);
+            shippingEl.textContent = formatAmount(shipping);
+            totalEl.textContent = formatAmount(subtotal + shipping);
+            checkoutBtn.disabled = subtotal === 0;
+            checkoutBtn.style.opacity = subtotal === 0 ? '0.6' : '1';
+        }
+
+        function attachEvents() {
+            document.querySelectorAll('.item-qty').forEach(input => {
+                input.addEventListener('input', event => {
+                    const id = event.target.dataset.id;
+                    const cart = getCart();
+                    const item = cart.find(entry => entry.id === id);
+                    if (item) {
+                        item.qty = Math.max(1, Number(event.target.value) || 1);
+                        saveCart(cart);
+                        updateSummary();
+                    }
+                });
+            });
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', event => {
+                    const id = event.target.dataset.id;
+                    const cart = getCart().filter(item => item.id !== id);
+                    saveCart(cart);
+                    renderCart();
+                });
+            });
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            cartItemsContainer.innerHTML = '';
+            if (cart.length === 0) {
+                cartEmptyMessage.style.display = 'block';
+                updateSummary();
+                return;
+            }
+            cartEmptyMessage.style.display = 'none';
+            cart.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'cart-item';
+                row.dataset.price = item.price;
+                row.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="details">
+                        <h3>${item.name}</h3>
+                        <p class="item-meta">${item.description}</p>
+                        <div class="item-controls">
+                            <span>Price: $${item.price.toFixed(2)}</span>
+                            <input type="number" min="1" value="${item.qty}" class="item-qty" data-id="${item.id}">
+                            <span class="item-total">${formatAmount(item.price * item.qty)}</span>
+                        </div>
+                        <button type="button" class="remove-item" data-id="${item.id}">Remove</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(row);
+            });
+            attachEvents();
+            updateSummary();
+        }
+
+        checkoutBtn.addEventListener('click', handleCheckout);
+        renderCart();
+    </script>
+</body>
+
+</html>

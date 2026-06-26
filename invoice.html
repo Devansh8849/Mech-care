@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice | Mech Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header>
+            <h2>Invoice</h2>
+        </header>
+
+        <section class="invoice-page">
+            <div class="invoice-card">
+                <div class="invoice-header">
+                    <div>
+                        <h3>Mech Care Invoice</h3>
+                        <p id="invoiceDate">Date: —</p>
+                    </div>
+                    <div>
+                        <p id="invoiceNumber">Order #: —</p>
+                        <p id="invoicePayment">Payment: —</p>
+                    </div>
+                </div>
+
+                <div class="invoice-customer">
+                    <strong>Customer</strong>
+                    <p id="invoiceName">Name: —</p>
+                    <p id="invoiceEmail">Email: —</p>
+                </div>
+
+                <div class="invoice-table-wrapper">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItems"></tbody>
+                    </table>
+                </div>
+
+                <div class="invoice-totals">
+                    <p><span>Subtotal</span><span id="invoiceSubtotal">$0.00</span></p>
+                    <p><span>Shipping</span><span id="invoiceShipping">$0.00</span></p>
+                    <p class="invoice-total-row"><span>Total</span><span id="invoiceTotal">$0.00</span></p>
+                </div>
+
+                <div class="invoice-actions">
+                    <button id="printInvoiceBtn">Print Invoice</button>
+                    <button id="backHomeBtn">Back to Shop</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="cart.html">🛒 Cart</a>
+        <a href="profile.html">👤 Profile</a>
+    </nav>
+
+    <script>
+        const CURRENT_USER_KEY = 'mechcareCurrentUser';
+        const INVOICE_KEY = 'mechcareInvoice';
+
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || 'null');
+        }
+
+        function getInvoice() {
+            return JSON.parse(localStorage.getItem(INVOICE_KEY) || 'null');
+        }
+
+        const user = getCurrentUser();
+        const invoice = getInvoice();
+        if (!user || !invoice) {
+            window.location.href = 'auth.html';
+        } else {
+            document.getElementById('invoiceDate').textContent = `Date: ${new Date(invoice.date).toLocaleString()}`;
+            document.getElementById('invoiceNumber').textContent = `Order #: ${invoice.id}`;
+            document.getElementById('invoicePayment').textContent = `Payment: ${invoice.paymentMethod}`;
+            document.getElementById('invoiceName').textContent = `Name: ${user.name}`;
+            document.getElementById('invoiceEmail').textContent = `Email: ${user.email}`;
+            document.getElementById('invoiceSubtotal').textContent = invoice.subtotal;
+            document.getElementById('invoiceShipping').textContent = invoice.shipping;
+            document.getElementById('invoiceTotal').textContent = invoice.total;
+
+            const itemsContainer = document.getElementById('invoiceItems');
+            invoice.items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.qty}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                    <td>$${(item.price * item.qty).toFixed(2)}</td>
+                `;
+                itemsContainer.appendChild(row);
+            });
+        }
+
+        document.getElementById('printInvoiceBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        document.getElementById('backHomeBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>

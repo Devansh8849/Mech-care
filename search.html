@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search | Mech Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header>
+            <h2>Search Auto Parts</h2>
+        </header>
+
+        <div class="search">
+            <input type="text" placeholder="Search Auto Parts...">
+            <div class="search-suggestions">
+                <button type="button">Battery</button>
+                <button type="button">Tyre</button>
+                <button type="button">Engine Oil</button>
+                <button type="button">Brake Disc</button>
+                <button type="button">Air Filter</button>
+                <button type="button">Spark Plugs</button>
+            </div>
+        </div>
+
+        <section class="search-page">
+            <p class="search-note">Search through auto parts and find the best match for your vehicle.</p>
+            <div class="container">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600" alt="Car Battery">
+                    <div class="content">
+                        <h3>Car Battery</h3>
+                        <p>Premium Long Life Battery</p>
+                        <h2>$129.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600" alt="Car Tyre">
+                    <div class="content">
+                        <h3>Car Tyre</h3>
+                        <p>All Season Performance Tyre</p>
+                        <h2>$149.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.pexels.com/photos/3807329/pexels-photo-3807329.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Engine Oil">
+
+                    <div class="content">
+                        <h3>Engine Oil</h3>
+                        <p>5W-30 Full Synthetic Engine Oil</p>
+                        <h2>$24.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="cart.html">🛒 Cart</a>
+        <a href="profile.html">👤 Profile</a>
+    </nav>
+    <script>
+        const CART_KEY = 'mechcareCart';
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        }
+
+        function addProductToCart(product) {
+            const cart = getCart();
+            const existing = cart.find(item => item.id === product.id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({...product,
+                    qty: 1
+                });
+            }
+            saveCart(cart);
+        }
+
+        document.querySelectorAll('.card button').forEach(button => {
+            button.addEventListener('click', () => {
+                const card = button.closest('.card');
+                const name = card.querySelector('h3').textContent.trim();
+                const description = card.querySelector('p').textContent.trim();
+                const price = parseFloat(card.querySelector('h2').textContent.replace('$', '').trim()) || 0;
+                const image = card.querySelector('img').src;
+                const id = name.toLowerCase().replace(/\s+/g, '-');
+                addProductToCart({
+                    id,
+                    name,
+                    description,
+                    price,
+                    image
+                });
+                button.textContent = 'Added';
+                button.disabled = true;
+                setTimeout(() => {
+                    button.textContent = 'Add To Cart';
+                    button.disabled = false;
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+
+</html>

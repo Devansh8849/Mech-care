@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brake Disc | Mech Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header>
+            <h2>Brake Disc</h2>
+        </header>
+
+        <div class="search">
+            <input type="text" placeholder="Search Auto Parts...">
+            <div class="search-suggestions">
+                <button type="button" data-href="battery.html">Battery</button>
+                <button type="button" data-href="tyre.html">Tyre</button>
+                <button type="button" data-href="oil.html">Engine Oil</button>
+                <button type="button" data-href="brake.html">Brake Disc</button>
+                <button type="button" data-href="filter.html">Air Filter</button>
+                <button type="button" data-href="spark.html">Spark Plugs</button>
+            </div>
+        </div>
+
+        <section class="search-page">
+            <p class="search-note">Choose brake discs for improved stopping power.</p>
+            <div class="container">
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Standard Brake Disc">
+                    <div class="content">
+                        <h3>Standard Brake Disc</h3>
+                        <p>Reliable braking for everyday driving.</p>
+                        <h2>$69.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Performance Brake Disc">
+                    <div class="content">
+                        <h3>Performance Brake Disc</h3>
+                        <p>Enhanced cooling and grip for spirited driving.</p>
+                        <h2>$89.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Slotted Brake Disc">
+                    <div class="content">
+                        <h3>Slotted Brake Disc</h3>
+                        <p>Improved performance in wet and hot conditions.</p>
+                        <h2>$99.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Ventilated Brake Disc">
+                    <div class="content">
+                        <h3>Ventilated Brake Disc</h3>
+                        <p>Better heat dissipation for frequent stop-and-go driving.</p>
+                        <h2>$119.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Ceramic Brake Disc">
+                    <div class="content">
+                        <h3>Ceramic Brake Disc</h3>
+                        <p>Premium braking for high-performance vehicles.</p>
+                        <h2>$139.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://acko-cms.ackoassets.com/types_of_brakes_87f111cae1.jpg" alt="Carbon Coated Brake Disc">
+                    <div class="content">
+                        <h3>Carbon Coated Brake Disc</h3>
+                        <p>Extra durability with low dust and long life.</p>
+                        <h2>$129.99</h2>
+                        <button>Add To Cart</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="cart.html">🛒 Cart</a>
+        <a href="profile.html">👤 Profile</a>
+    </nav>
+    <script>
+        const CART_KEY = 'mechcareCart';
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        }
+
+        function addProductToCart(product) {
+            const cart = getCart();
+            const existing = cart.find(item => item.id === product.id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({...product,
+                    qty: 1
+                });
+            }
+            saveCart(cart);
+        }
+        document.querySelectorAll('.card button').forEach(button => {
+            button.addEventListener('click', () => {
+                const card = button.closest('.card');
+                const name = card.querySelector('h3').textContent.trim();
+                const description = card.querySelector('p').textContent.trim();
+                const price = parseFloat(card.querySelector('h2').textContent.replace('$', '').trim()) || 0;
+                const image = card.querySelector('img').src;
+                const id = name.toLowerCase().replace(/\s+/g, '-');
+                addProductToCart({
+                    id,
+                    name,
+                    description,
+                    price,
+                    image
+                });
+                button.textContent = 'Added';
+                button.disabled = true;
+                setTimeout(() => {
+                    button.textContent = 'Add To Cart';
+                    button.disabled = false;
+                }, 1200);
+            });
+        });
+        document.querySelectorAll('.search-suggestions button[data-href]').forEach(button => {
+            button.addEventListener('click', () => window.location.href = button.dataset.href);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Mech Care</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header>
+            <h2>My Profile</h2>
+        </header>
+
+        <section class="profile-page">
+            <div class="profile-card">
+                <div class="profile-details">
+                    <h3 id="profileName">User Name</h3>
+                    <p id="profileEmail">Email: user@example.com</p>
+                    <p id="profileDate">Member since: —</p>
+                </div>
+                <div class="profile-actions">
+                    <button id="logoutBtn">Log Out</button>
+                </div>
+            </div>
+
+            <div class="profile-summary">
+                <div class="profile-summary-card">
+                    <h4>Recent Orders</h4>
+                    <ul>
+                        <li>Car Battery - Delivered</li>
+                        <li>Engine Oil - Shipped</li>
+                        <li>Brake Disc - Processing</li>
+                    </ul>
+                </div>
+                <div class="profile-summary-card">
+                    <h4>Saved Address</h4>
+                    <p>123 Mech Care Lane</p>
+                    <p>Auto City, AC 98765</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html">🏠 Home</a>
+        <a href="search.html">🔍 Search</a>
+        <a href="cart.html">🛒 Cart</a>
+        <a href="profile.html">👤 Profile</a>
+    </nav>
+
+    <script>
+        const CURRENT_USER_KEY = 'mechcareCurrentUser';
+
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || 'null');
+        }
+
+        function logout() {
+            localStorage.removeItem(CURRENT_USER_KEY);
+            window.location.href = 'auth.html';
+        }
+
+        const user = getCurrentUser();
+        if (!user) {
+            window.location.href = 'auth.html';
+        } else {
+            document.getElementById('profileName').textContent = user.name || 'Mech Care User';
+            document.getElementById('profileEmail').textContent = `Email: ${user.email}`;
+            document.getElementById('profileDate').textContent = `Member since: ${new Date(user.createdAt).toLocaleDateString()}`;
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        }
+    </script>
+</body>
+
+</html>
